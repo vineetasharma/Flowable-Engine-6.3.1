@@ -12,6 +12,7 @@
  */
 package org.flowable.rest.conf;
 
+import org.apache.catalina.filters.CorsFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.rest.app.properties.RestAppProperties;
 import org.flowable.rest.security.BasicAuthenticationProvider;
@@ -26,6 +27,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -81,7 +83,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             httpSecurity
             .authorizeRequests()
             .anyRequest()
-            .authenticated().and().httpBasic();
+            .authenticated().and().httpBasic().and().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
             
         }
     }

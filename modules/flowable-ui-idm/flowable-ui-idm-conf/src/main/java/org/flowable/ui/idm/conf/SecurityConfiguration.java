@@ -17,6 +17,7 @@ import org.flowable.ui.common.properties.FlowableRestAppProperties;
 import org.flowable.ui.common.security.ActuatorRequestMatcher;
 import org.flowable.ui.common.security.ClearFlowableCookieLogoutHandler;
 import org.flowable.ui.common.security.DefaultPrivileges;
+import org.flowable.ui.idm.conf.filter.CorsFilter;
 import org.flowable.ui.idm.properties.FlowableIdmAppProperties;
 import org.flowable.ui.idm.security.AjaxAuthenticationFailureHandler;
 import org.flowable.ui.idm.security.AjaxAuthenticationSuccessHandler;
@@ -43,8 +44,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 /**
  * Based on http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#multiple-httpsecurity
@@ -141,13 +142,14 @@ public class SecurityConfiguration {
                     .disable() // Disabled, cause enabling it will cause sessions
                     .headers()
                     .frameOptions()
-                    .sameOrigin()
-                    .addHeaderWriter(new XXssProtectionHeaderWriter())
+                    .disable()
+//                    .addHeaderWriter(new XXssProtectionHeaderWriter())
                     .and()
                     .authorizeRequests()
                     .antMatchers("/*").permitAll()
                     .antMatchers("/app/rest/authenticate").permitAll()
-                    .antMatchers("/app/**").hasAuthority(DefaultPrivileges.ACCESS_IDM);
+                    .antMatchers("/app/**").hasAuthority(DefaultPrivileges.ACCESS_IDM)
+                    .and().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
 
             // Custom login form configurer to allow for non-standard HTTP-methods (eg. LOCK)
             CustomFormLoginConfig<HttpSecurity> loginConfig = new CustomFormLoginConfig<>();
@@ -192,7 +194,7 @@ public class SecurityConfiguration {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                     .csrf()
-                    .disable();
+                    .disable().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
 
             if (idmAppProperties.isRestEnabled()) {
 
@@ -235,7 +237,7 @@ public class SecurityConfiguration {
                 .authorizeRequests()
                 .requestMatchers(EndpointRequest.to(InfoEndpoint.class, HealthEndpoint.class)).authenticated()
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAnyAuthority(DefaultPrivileges.ACCESS_ADMIN)
-                .and().httpBasic();
+                .and().httpBasic().and().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
         }
     }
 }

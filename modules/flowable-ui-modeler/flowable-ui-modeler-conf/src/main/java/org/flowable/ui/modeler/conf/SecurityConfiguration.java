@@ -21,6 +21,7 @@ import org.flowable.ui.common.security.ActuatorRequestMatcher;
 import org.flowable.ui.common.security.ClearFlowableCookieLogoutHandler;
 import org.flowable.ui.common.security.DefaultPrivileges;
 import org.flowable.ui.common.service.idm.RemoteIdmService;
+import org.flowable.ui.modeler.conf.filter.CorsFilter;
 import org.flowable.ui.modeler.properties.FlowableModelerAppProperties;
 import org.flowable.ui.modeler.security.AjaxLogoutSuccessHandler;
 import org.flowable.ui.modeler.security.RemoteIdmAuthenticationProvider;
@@ -39,6 +40,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
@@ -105,11 +107,12 @@ public class SecurityConfiguration {
                         .disable() // Disabled, cause enabling it will cause sessions
                         .headers()
                         .frameOptions()
-                        .sameOrigin()
-                        .addHeaderWriter(new XXssProtectionHeaderWriter())
+                        .disable()
+//                        .addHeaderWriter(new XXssProtectionHeaderWriter())
                 .and()
                     .authorizeRequests()
-                    .antMatchers(REST_ENDPOINTS_PREFIX + "/**").hasAuthority(DefaultPrivileges.ACCESS_MODELER);
+                    .antMatchers(REST_ENDPOINTS_PREFIX + "/**").hasAuthority(DefaultPrivileges.ACCESS_MODELER)
+                    .and().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
         }
     }
     

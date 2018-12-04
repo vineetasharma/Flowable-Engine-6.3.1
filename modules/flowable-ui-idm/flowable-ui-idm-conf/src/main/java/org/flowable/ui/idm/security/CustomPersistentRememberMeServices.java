@@ -230,7 +230,7 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
         Method setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
         if (setHttpOnlyMethod != null) {
-            ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.TRUE);
+            ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.FALSE);
         } else if (logger.isDebugEnabled()) {
             logger.debug("Note: Cookie will not be marked as HttpOnly because you are not using Servlet 3.0 (Cookie#setHttpOnly(boolean) was not found).");
         }

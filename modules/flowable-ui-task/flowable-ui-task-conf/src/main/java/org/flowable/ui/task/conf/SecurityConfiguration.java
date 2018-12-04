@@ -22,6 +22,7 @@ import org.flowable.ui.common.security.ActuatorRequestMatcher;
 import org.flowable.ui.common.security.ClearFlowableCookieLogoutHandler;
 import org.flowable.ui.common.security.DefaultPrivileges;
 import org.flowable.ui.common.service.idm.RemoteIdmService;
+import org.flowable.ui.task.conf.filter.CorsFilter;
 import org.flowable.ui.task.properties.FlowableTaskAppProperties;
 import org.flowable.ui.task.security.AjaxLogoutSuccessHandler;
 import org.flowable.ui.task.security.EngineAuthenticationCookieFilterCallback;
@@ -41,8 +42,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
 /**
  * Based on http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#multiple-httpsecurity
@@ -114,12 +117,12 @@ public class SecurityConfiguration {
                     .disable() // Disabled, cause enabling it will cause sessions
                     .headers()
                     .frameOptions()
-                    .sameOrigin()
-                    .addHeaderWriter(new XXssProtectionHeaderWriter())
+                    .disable()
+//                    .addHeaderWriter(new XFrameOptionsHeaderWriter())
                     .and()
                     .authorizeRequests()
                 .antMatchers("/app/rest/**").hasAuthority(DefaultPrivileges.ACCESS_TASK)
-                .antMatchers("/rest/**").hasAuthority(DefaultPrivileges.ACCESS_TASK);
+                .antMatchers("/rest/**").hasAuthority(DefaultPrivileges.ACCESS_TASK).and().addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
         }
     }
 
